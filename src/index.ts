@@ -1,9 +1,9 @@
 import * as api from './api';
 import { Submission } from './api_interfaces';
-import * as chart from 'chart.js';
+import Chart from 'chart.js/auto';
 
 import verdicts from './charts/verdicts';
-import verdicts_bar from './charts/verdicts_bar';
+// import verdicts_bar from './charts/verdicts_bar';
 
 const is_submission_from_contestant : (s: Submission) => boolean =
     s => s.author.participantType == "CONTESTANT";
@@ -46,7 +46,7 @@ async function main() {
         { 'id': 'contest-verdicts', 'style': 'height: 600px;' },
         $.q('.contest-charts'));
 
-    new chart.Chart(verdicts_canvas, verdicts(status));
+    new Chart(verdicts_canvas, verdicts(status));
 
     // let verdicts_bar_canvas = make_canvas(
     //     { 'id': 'contest-verdicts-bar', 'style': 'height: 600px;' },

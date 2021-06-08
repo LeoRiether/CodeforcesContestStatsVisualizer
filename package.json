@@ -2,15 +2,18 @@
   "name": "ccsvjs",
   "version": "1.0.0",
   "description": "Graphs for Codeforces contests",
-  "main": "src/index.ts",
+  "main": "src/index.html",
   "license": "GPL-3.0-or-later",
   "private": false,
   "dependencies": {
-    "parcel-bundler": "^1.12.5"
+    "@types/lodash": "^4.14.170",
+    "chart.js": "^3.3.2",
+    "lodash": "^4.17.21",
+    "parcel": "^2.0.0-beta.2"
   },
   "scripts": {
     "build": "parcel build src/index.html --public-url ./",
-    "start": "parcel src/index.html --public-url ./",
+    "start": "parcel src/index.html",
     "deploy": "git subtree push --prefix dist origin gh-pages"
   },
   "devDependencies": {

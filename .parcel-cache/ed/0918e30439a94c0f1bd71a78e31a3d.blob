@@ -1,0 +1,40 @@
+var _api = require('./api');
+var _chartJs = require('chart.js');
+var _chartsVerdicts = require('./charts/verdicts');
+var _parcelHelpers = require("@parcel/transformer-js/lib/esmodule-helpers.js");
+var _chartsVerdictsDefault = _parcelHelpers.interopDefault(_chartsVerdicts);
+const is_submission_from_contestant = s => s.author.participantType == "CONTESTANT";
+function make_canvas(attrs, parent) {
+  let canvas = document.createElement("canvas");
+  for (let key in attrs) if (attrs.hasOwnProperty(key)) canvas.setAttribute(key, attrs[key]);
+  if (parent !== undefined) parent.appendChild(canvas);
+  return canvas;
+}
+const $ = {
+  id(id) {
+    return document.getElementById(id);
+  },
+  q(query) {
+    return document.querySelector(query);
+  }
+};
+async function main() {
+  if (localStorage.getItem('cf_key') === null || localStorage.getItem('cf_secret') === null) {
+    localStorage.setItem('cf_key', prompt('Your API key'));
+    localStorage.setItem('cf_secret', prompt('Your API secret'));
+  }
+  // Yeah, an extension or userscript could easily get hold of these
+  let creds = {
+    key: localStorage.getItem('cf_key'),
+    secret: localStorage.getItem('cf_secret')
+  };
+  let status = await _api.contest_status(creds, '329742');
+  status = status.filter(is_submission_from_contestant);
+  // Contest Charts
+  let verdicts_canvas = make_canvas({
+    'id': 'contest-verdicts',
+    'height': '400px'
+  }, $.q('.contest-charts'));
+  new _chartJs.Chart(verdicts_canvas, _chartsVerdictsDefault.default(status));
+}
+main();

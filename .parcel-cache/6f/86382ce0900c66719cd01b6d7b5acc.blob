@@ -1,0 +1,37 @@
+var _parcelHelpers = require("@parcel/transformer-js/lib/esmodule-helpers.js");
+_parcelHelpers.defineInteropFlag(exports);
+var _lodashGroupBy = require('lodash/groupBy');
+var _lodashGroupByDefault = _parcelHelpers.interopDefault(_lodashGroupBy);
+var _util = require('../util');
+const colorFor = {
+  "OK": _util.color.hue(111),
+  "WRONG_ANSWER": _util.color.hue(0),
+  "TIME_LIMIT_EXCEEDED": _util.color.hue(59),
+  "MEMORY_LIMIT_EXCEEDED": _util.color.hue(315),
+  "IDLENESS_LIMIT_EXCEEDED": _util.color.hue(75),
+  "RUNTIME_ERROR": _util.color.hue(22),
+  "COMPILATION_ERROR": _util.color.gray(60)
+};
+function verdicts(status) {
+  let groups = Object.entries(_lodashGroupByDefault.default(status, sub => sub.verdict));
+  const labels = groups.map(([label, _]) => label);
+  const data = groups.map(([_, subs]) => subs.length);
+  const backgroundColor = labels.map(l => colorFor[l] || _util.color.random());
+  return {
+    type: 'doughnut',
+    data: {
+      labels,
+      datasets: [{
+        label: "Contest Verdicts",
+        data,
+        backgroundColor,
+        hoverOffset: 16
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false
+    }
+  };
+}
+exports.default = verdicts;

@@ -1,0 +1,16 @@
+var _parcelHelpers = require("@parcel/transformer-js/lib/esmodule-helpers.js");
+_parcelHelpers.defineInteropFlag(exports);
+_parcelHelpers.export(exports, "color", function () {
+  return color;
+});
+const color = {
+  hue(h) {
+    return `hsl(${h}, 51%, 53%)`;
+  },
+  gray(l) {
+    return `hsl(0, 0%, ${l}%)`;
+  },
+  random() {
+    return this.hue(Math.random() * 360);
+  }
+};

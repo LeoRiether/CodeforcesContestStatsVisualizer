@@ -1,3 +1,4 @@
+import { Submission } from './api_interfaces';
 
 const api_base = 'https://codeforces.com/api';
 
@@ -42,6 +43,6 @@ async function request(creds: Creds, method: string, params: StrDict): Promise<a
     return response['result'];
 }
 
-export function contest_status(creds: Creds, contestId: string): Promise<StrDict> {
+export function contest_status(creds: Creds, contestId: string): Promise<Submission[]> {
     return request(creds, 'contest.status', { contestId });
 }

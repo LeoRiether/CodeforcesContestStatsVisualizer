@@ -56,8 +56,8 @@ function make_all_charts(status: Submission[]) {
 function main(contestID: string) {
     // Yeah, an extension or userscript could easily get hold of these
     let creds: api.Creds = {
-        key: localStorage.getItem('cf_key'),
-        secret: localStorage.getItem('cf_secret'),
+        key: localStorage.getItem('cf_key') || "",
+        secret: localStorage.getItem('cf_secret') || "",
     };
 
     return api.contest_status(creds, contestID)

@@ -20708,6 +20708,100 @@ function verdicts(status) {
 }
 
 exports.default = verdicts;
+},{"lodash/groupBy":"../node_modules/lodash/groupBy.js","../util":"util.ts"}],"charts/verdicts_bar.ts":[function(require,module,exports) {
+"use strict";
+
+var __importDefault = this && this.__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var groupBy_1 = __importDefault(require("lodash/groupBy"));
+
+var util_1 = require("../util"); //! FIXME: something's wrong. Problem M shouldn't have any Accepted submissions
+// Pretty unreadable
+
+
+function verdicts_bar(status) {
+  var priority = {
+    "OK": 1,
+    "WRONG_ANSWER": 2,
+    "TIME_LIMIT_EXCEEDED": 3,
+    "RUNTIME_ERROR": 4,
+    "MEMORY_LIMIT_EXCEEDED": 5
+  };
+  var verdict_groups = Object.entries(groupBy_1.default(status, function (sub) {
+    return sub.verdict;
+  }));
+  verdict_groups.sort(function (_a, _b) {
+    var a = _a[0],
+        _ = _a[1];
+    var b = _b[0],
+        __ = _b[1];
+    return (priority[a] || 100) - (priority[b] || 100);
+  });
+  var problem_index_to_name = new Map(status.map(function (sub) {
+    return [sub.problem.index, sub.problem.name];
+  }));
+  var problem_entries = Array.from(problem_index_to_name.entries());
+  problem_entries.sort();
+  var problem_names = problem_entries.map(function (_a) {
+    var index = _a[0],
+        name = _a[1];
+    return index + " - " + name;
+  });
+  var index_to_index = new Map(problem_entries.map(function (_a, j) {
+    var i = _a[0],
+        _ = _a[1];
+    return [i, j];
+  })); // this is so confusing
+
+  var datasets = verdict_groups.map(function (_a) {
+    var verdict = _a[0],
+        subs = _a[1];
+    var backgroundColor = util_1.colorFor[verdict] || util_1.color.random();
+    var label = verdict;
+    var data = new Array(index_to_index.size).fill(0);
+
+    for (var _i = 0, subs_1 = subs; _i < subs_1.length; _i++) {
+      var sub = subs_1[_i];
+      data[index_to_index.get(sub.problem.index)]++;
+    }
+
+    return {
+      label: label,
+      data: data,
+      backgroundColor: backgroundColor,
+      hoverOffset: 4
+    };
+  });
+  return {
+    type: 'bar',
+    data: {
+      labels: problem_names,
+      datasets: datasets
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: {
+          stacked: true
+        },
+        y: {
+          stacked: true
+        }
+      }
+    }
+  };
+}
+
+exports.default = verdicts_bar;
 },{"lodash/groupBy":"../node_modules/lodash/groupBy.js","../util":"util.ts"}],"index.ts":[function(require,module,exports) {
 "use strict";
 
@@ -20902,8 +20996,9 @@ var api = __importStar(require("./api"));
 
 var auto_1 = __importDefault(require("chart.js/auto"));
 
-var verdicts_1 = __importDefault(require("./charts/verdicts")); // import verdicts_bar from './charts/verdicts_bar';
+var verdicts_1 = __importDefault(require("./charts/verdicts"));
 
+var verdicts_bar_1 = __importDefault(require("./charts/verdicts_bar"));
 
 var is_submission_from_contestant = function is_submission_from_contestant(s) {
   return s.author.participantType == "CONTESTANT";
@@ -20931,7 +21026,7 @@ var $ = {
 
 function main() {
   return __awaiter(this, void 0, void 0, function () {
-    var creds, status, verdicts_canvas;
+    var creds, status, verdicts_canvas, verdicts_bar_canvas;
     return __generator(this, function (_a) {
       switch (_a.label) {
         case 0:
@@ -20953,9 +21048,14 @@ function main() {
           status = status.filter(is_submission_from_contestant);
           verdicts_canvas = make_canvas({
             'id': 'contest-verdicts',
-            'style': 'height: 600px;'
+            'style': 'height: 500px;'
           }, $.q('.contest-charts'));
           new auto_1.default(verdicts_canvas, verdicts_1.default(status));
+          verdicts_bar_canvas = make_canvas({
+            'id': 'contest-verdicts-bar',
+            'style': 'height: 600px;'
+          }, $.q('.contest-charts-2'));
+          new auto_1.default(verdicts_bar_canvas, verdicts_bar_1.default(status));
           return [2
           /*return*/
           ];
@@ -20965,7 +21065,7 @@ function main() {
 }
 
 main();
-},{"./api":"api.ts","chart.js/auto":"../node_modules/chart.js/auto/auto.esm.js","./charts/verdicts":"charts/verdicts.ts"}],"../node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"./api":"api.ts","chart.js/auto":"../node_modules/chart.js/auto/auto.esm.js","./charts/verdicts":"charts/verdicts.ts","./charts/verdicts_bar":"charts/verdicts_bar.ts"}],"../node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -20993,7 +21093,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "56618" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54067" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

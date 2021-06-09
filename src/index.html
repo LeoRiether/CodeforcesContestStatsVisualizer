@@ -11,6 +11,7 @@
         body, html {
             margin: 0;
             padding: 0;
+            font-family: 'Helvetica', sans-serif;
         }
 
         body {
@@ -18,8 +19,19 @@
         }
 
         h3 {
-            font-family: 'Helvetica', sans-serif;
             font-size: 1.2rem;
+        }
+
+        .form {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            margin-right: 1rem;
+        }
+
+        .hidden {
+            display: none;
         }
 
         .chart {
@@ -34,7 +46,19 @@
 
 <body>
 
-    <div class="dashboard">
+    <div class="form secret">
+        <label> API Key <input id="key-input"> </label>
+        <label> API Secret <input id="secret-input"> </label>
+        <button id="save-btn" style="margin-right: 1rem;">Save</button>
+        <span style="font-size: .7rem; color: rgba(0,0,0,.5);">(You don't need to input these every time)</span>
+    </div>
+
+    <div class="form">
+        <label> Contest ID <input type="text" id="contest-id"> </label>
+        <button id="vis-btn">Visualize</button>
+    </div>
+
+    <div class="dashboard hidden">
         <h3>Total Verdicts</h3>
         <div id="verdicts" class="chart"></div>
 
@@ -43,6 +67,9 @@
 
         <h3>Submissions per Time</h3>
         <div id="submissions-time" class="chart"></div>
+
+        <h3>ACs per Time</h3>
+        <div id="acs-time" class="chart"></div>
     </div>
 
     <script src="index.ts"></script>

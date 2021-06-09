@@ -24,21 +24,17 @@ function make_canvas(attrs: object, parent?: Element): HTMLCanvasElement {
 const $ = {
     id(id: string) { return document.getElementById(id); },
     q(query: string) { return document.querySelector(query); },
+    qa(query: string) { return document.querySelectorAll(query); },
 };
 
-async function main() {
-    if (localStorage.getItem('cf_key') === null || localStorage.getItem('cf_secret') === null) {
-        localStorage.setItem('cf_key', prompt('Your API key'));
-        localStorage.setItem('cf_secret', prompt('Your API secret'));
-    }
-
+async function main(contestID: string) {
     // Yeah, an extension or userscript could easily get hold of these
     let creds: api.Creds = {
         key: localStorage.getItem('cf_key'),
         secret: localStorage.getItem('cf_secret'),
     };
 
-    let status = await api.contest_status(creds, '329742');
+    let status = await api.contest_status(creds, contestID);
     status = status
         .filter(is_submission_from_contestant);
 
@@ -60,8 +56,33 @@ async function main() {
         $.q('#submissions-time'));
 
     new Chart(submissions_time_canvas, submissions_time(status));
+
+    let acs_time_canvas = make_canvas(
+        { 'id': 'acs-time-canvas', 'style': 'height: 600px;' },
+        $.q('#acs-time'));
+
+    new Chart(acs_time_canvas, submissions_time(status.filter(sub => sub.verdict == "OK")));
 }
 
-main();
+(function bind_events() {
+    $.id('save-btn').addEventListener('click', () => {
+        const key = ($.id('key-input') as HTMLInputElement).value;
+        const secret = ($.id('secret-input') as HTMLInputElement).value;
 
+        localStorage.setItem('cf_key', key);
+        localStorage.setItem('cf_secret', secret);
 
+        window.location.reload();
+    });
+
+    ($.id('contest-id') as HTMLInputElement).value = localStorage.getItem('last_contest_id') || "";
+
+    $.id('vis-btn').addEventListener('click', () => {
+        const contestID = ($.id('contest-id') as HTMLInputElement).value;
+        main(contestID);
+
+        Array.from($.qa('.form')).forEach(el => el.remove());
+        localStorage.setItem('last_contest_id', contestID);
+        $.q('.dashboard').classList.remove('hidden');
+    });
+})();

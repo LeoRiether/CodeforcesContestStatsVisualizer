@@ -1,9 +1,8 @@
 import { Submission } from '../api_interfaces';
 import * as chart from 'chart.js';
 import groupBy from 'lodash/groupBy';
-import { color, colorFor } from '../util';
 
-export default function verdicts_per_problem(status: Submission[]): chart.ChartConfiguration  {
+export default function submissions_lang(status: Submission[]): chart.ChartConfiguration  {
     let groups = Object.entries(groupBy(status, sub => sub.programmingLanguage));
     groups.sort();
 
@@ -15,7 +14,7 @@ export default function verdicts_per_problem(status: Submission[]): chart.ChartC
         data: {
             labels: languages,
             datasets: [{
-                label: "Submissions"
+                label: "Submissions",
                 data,
                 backgroundColor: 'rgb(121 220 225 / 57%)',
             }],

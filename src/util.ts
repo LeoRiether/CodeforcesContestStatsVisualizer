@@ -13,11 +13,11 @@ export const color = {
 };
 
 export const colorFor = {
-    "OK": color.hue(111),
-    "WRONG_ANSWER": color.hue(0),
-    "TIME_LIMIT_EXCEEDED": color.hue(59),
-    "MEMORY_LIMIT_EXCEEDED": color.hue(315),
-    "IDLENESS_LIMIT_EXCEEDED": color.hue(75),
-    "RUNTIME_ERROR": color.hue(22),
-    "COMPILATION_ERROR": color.gray(60),
+    "OK": '#00a92a',
+    "WRONG_ANSWER": '#ed4420',
+    "TIME_LIMIT_EXCEEDED": '#a3bcbd',
+    "MEMORY_LIMIT_EXCEEDED": '#0462c7',
+    "IDLENESS_LIMIT_EXCEEDED": '#bf00a6',
+    "RUNTIME_ERROR": '#ffa71c',
+    "COMPILATION_ERROR": '#42586d',
 };

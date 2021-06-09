@@ -11,7 +11,7 @@ export default function verdicts(status: Submission[]): chart.ChartConfiguration
     const backgroundColor = labels.map(l => colorFor[l] || color.random());
 
     return {
-        type: 'doughnut',
+        type: 'pie',
         data: {
             labels,
             datasets: [{
@@ -24,6 +24,11 @@ export default function verdicts(status: Submission[]): chart.ChartConfiguration
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right',
+                },
+            },
         }
     };
 }

@@ -3,7 +3,8 @@ import { Submission } from './api_interfaces';
 import Chart from 'chart.js/auto';
 
 import verdicts from './charts/verdicts';
-import verdicts_bar from './charts/verdicts_bar';
+import verdicts_per_problem from './charts/verdicts_per_problem';
+import submissions_time from './charts/submissions_time';
 
 const is_submission_from_contestant : (s: Submission) => boolean =
     s => s.author.participantType == "CONTESTANT";
@@ -43,16 +44,22 @@ async function main() {
 
     // Make the graphs!
     let verdicts_canvas = make_canvas(
-        { 'id': 'contest-verdicts', 'style': 'height: 500px;' },
-        $.q('.contest-charts'));
+        { 'id': 'verdicts-canvas', 'style': 'height: 360px;' },
+        $.q('#verdicts'));
 
     new Chart(verdicts_canvas, verdicts(status));
 
-    let verdicts_bar_canvas = make_canvas(
-        { 'id': 'contest-verdicts-bar', 'style': 'height: 600px;' },
-        $.q('.contest-charts-2'));
+    let verdicts_per_problem_canvas = make_canvas(
+        { 'id': 'verdicts-per-problem-canvas', 'style': 'height: 600px;' },
+        $.q('#verdicts-per-problem'));
 
-    new Chart(verdicts_bar_canvas, verdicts_bar(status));
+    new Chart(verdicts_per_problem_canvas, verdicts_per_problem(status));
+
+    let submissions_time_canvas = make_canvas(
+        { 'id': 'submissions-time-canvas', 'style': 'height: 600px;' },
+        $.q('#submissions-time'));
+
+    new Chart(submissions_time_canvas, submissions_time(status));
 }
 
 main();

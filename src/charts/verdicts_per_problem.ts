@@ -4,7 +4,7 @@ import groupBy from 'lodash/groupBy';
 import { color, colorFor } from '../util';
 
 // Pretty unreadable
-export default function verdicts_bar(status: Submission[]): chart.ChartConfiguration  {
+export default function verdicts_per_problem(status: Submission[]): chart.ChartConfiguration  {
     const priority = { "OK": 1, "WRONG_ANSWER": 2, "TIME_LIMIT_EXCEEDED": 3,
                        "RUNTIME_ERROR": 4, "MEMORY_LIMIT_EXCEEDED": 5 };
 
@@ -29,7 +29,6 @@ export default function verdicts_bar(status: Submission[]): chart.ChartConfigura
             label,
             data,
             backgroundColor,
-            hoverOffset: 4,
         }
     });
 
@@ -42,10 +41,11 @@ export default function verdicts_bar(status: Submission[]): chart.ChartConfigura
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            indexAxis: 'y',
             scales: {
                 x: {stacked: true},
                 y: {stacked: true},
-            }
+            },
         }
     };
 }

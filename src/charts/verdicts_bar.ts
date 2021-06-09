@@ -3,8 +3,6 @@ import * as chart from 'chart.js';
 import groupBy from 'lodash/groupBy';
 import { color, colorFor } from '../util';
 
-//! FIXME: something's wrong. Problem M shouldn't have any Accepted submissions
-
 // Pretty unreadable
 export default function verdicts_bar(status: Submission[]): chart.ChartConfiguration  {
     const priority = { "OK": 1, "WRONG_ANSWER": 2, "TIME_LIMIT_EXCEEDED": 3,

@@ -20884,6 +20884,71 @@ function submissions_time(status) {
 }
 
 exports.default = submissions_time;
+},{"lodash/groupBy":"../node_modules/lodash/groupBy.js"}],"charts/submissions_lang.ts":[function(require,module,exports) {
+"use strict";
+
+var __importDefault = this && this.__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var groupBy_1 = __importDefault(require("lodash/groupBy"));
+
+function verdicts_per_problem(status) {
+  var groups = Object.entries(groupBy_1.default(status, function (sub) {
+    return sub.programmingLanguage;
+  }));
+  groups.sort();
+  var languages = groups.map(function (_a) {
+    var lang = _a[0],
+        _ = _a[1];
+    return lang;
+  });
+  var data = groups.map(function (_a) {
+    var _ = _a[0],
+        subs = _a[1];
+    return subs.length;
+  });
+  return {
+    type: 'bar',
+    data: {
+      labels: languages,
+      datasets: [{
+        label: "Submissions",
+        data: data,
+        backgroundColor: 'rgb(121 220 225 / 57%)'
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      indexAxis: 'y',
+      scales: {
+        x: {
+          stacked: true,
+          title: {
+            display: true,
+            text: "Submissions"
+          }
+        },
+        y: {
+          stacked: true,
+          title: {
+            display: true,
+            text: "Language"
+          }
+        }
+      }
+    }
+  };
+}
+
+exports.default = verdicts_per_problem;
 },{"lodash/groupBy":"../node_modules/lodash/groupBy.js"}],"index.ts":[function(require,module,exports) {
 "use strict";
 
@@ -20941,6 +21006,8 @@ var verdicts_per_problem_1 = __importDefault(require("./charts/verdicts_per_prob
 
 var submissions_time_1 = __importDefault(require("./charts/submissions_time"));
 
+var submissions_lang_1 = __importDefault(require("./charts/submissions_lang"));
+
 var is_submission_from_contestant = function is_submission_from_contestant(s) {
   return s.author.participantType == "CONTESTANT";
 };
@@ -20976,7 +21043,7 @@ function make_all_charts(status) {
   new auto_1.default(verdicts_canvas, verdicts_1.default(status));
   var verdicts_per_problem_canvas = make_canvas({
     'id': 'verdicts-per-problem-canvas',
-    'style': 'height: 600px;'
+    'style': 'height: 550px;'
   }, $.q('#verdicts-per-problem'));
   new auto_1.default(verdicts_per_problem_canvas, verdicts_per_problem_1.default(status));
   var submissions_time_canvas = make_canvas({
@@ -20991,13 +21058,18 @@ function make_all_charts(status) {
   new auto_1.default(acs_time_canvas, submissions_time_1.default(status.filter(function (sub) {
     return sub.verdict == "OK";
   })));
+  var submissions_by_lang = make_canvas({
+    'id': 'subs-by-lang-canvas',
+    'style': 'height: 300px;'
+  }, $.q('#subs-by-lang'));
+  new auto_1.default(submissions_by_lang, submissions_lang_1.default(status));
 }
 
 function main(contestID) {
   // Yeah, an extension or userscript could easily get hold of these
   var creds = {
-    key: localStorage.getItem('cf_key'),
-    secret: localStorage.getItem('cf_secret')
+    key: localStorage.getItem('cf_key') || "",
+    secret: localStorage.getItem('cf_secret') || ""
   };
   return api.contest_status(creds, contestID).then(function (status) {
     return status.filter(is_submission_from_contestant);
@@ -21024,7 +21096,7 @@ function main(contestID) {
     $.q('.dashboard').classList.remove('hidden');
   });
 })();
-},{"./api":"api.ts","chart.js/auto":"../node_modules/chart.js/auto/auto.esm.js","./charts/verdicts":"charts/verdicts.ts","./charts/verdicts_per_problem":"charts/verdicts_per_problem.ts","./charts/submissions_time":"charts/submissions_time.ts"}],"../node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"./api":"api.ts","chart.js/auto":"../node_modules/chart.js/auto/auto.esm.js","./charts/verdicts":"charts/verdicts.ts","./charts/verdicts_per_problem":"charts/verdicts_per_problem.ts","./charts/submissions_time":"charts/submissions_time.ts","./charts/submissions_lang":"charts/submissions_lang.ts"}],"../node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -21052,7 +21124,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "56672" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "60285" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

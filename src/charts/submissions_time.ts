@@ -1,7 +1,6 @@
 import { Submission } from '../api_interfaces';
 import * as chart from 'chart.js';
 import groupBy from 'lodash/groupBy';
-import { color } from '../util';
 
 export default function submissions_time(status: Submission[]): chart.ChartConfiguration  {
     const maxTime = status.reduce((acc, sub) => Math.max(acc, sub.relativeTimeSeconds), 0);

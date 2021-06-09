@@ -5,6 +5,7 @@ import Chart from 'chart.js/auto';
 import verdicts from './charts/verdicts';
 import verdicts_per_problem from './charts/verdicts_per_problem';
 import submissions_time from './charts/submissions_time';
+import submissions_lang from './charts/submissions_lang';
 
 const is_submission_from_contestant : (s: Submission) => boolean =
     s => s.author.participantType == "CONTESTANT";
@@ -35,7 +36,7 @@ function make_all_charts(status: Submission[]) {
     new Chart(verdicts_canvas, verdicts(status));
 
     let verdicts_per_problem_canvas = make_canvas(
-        { 'id': 'verdicts-per-problem-canvas', 'style': 'height: 600px;' },
+        { 'id': 'verdicts-per-problem-canvas', 'style': 'height: 550px;' },
         $.q('#verdicts-per-problem'));
 
     new Chart(verdicts_per_problem_canvas, verdicts_per_problem(status));
@@ -51,6 +52,12 @@ function make_all_charts(status: Submission[]) {
         $.q('#acs-time'));
 
     new Chart(acs_time_canvas, submissions_time(status.filter(sub => sub.verdict == "OK")));
+
+    let submissions_by_lang = make_canvas(
+        { 'id': 'subs-by-lang-canvas', 'style': 'height: 300px;' },
+        $.q('#subs-by-lang'));
+
+    new Chart(submissions_by_lang, submissions_lang(status));
 }
 
 function main(contestID: string) {

@@ -20647,13 +20647,13 @@ exports.color = {
   }
 };
 exports.colorFor = {
-  "OK": exports.color.hue(111),
-  "WRONG_ANSWER": exports.color.hue(0),
-  "TIME_LIMIT_EXCEEDED": exports.color.hue(59),
-  "MEMORY_LIMIT_EXCEEDED": exports.color.hue(315),
-  "IDLENESS_LIMIT_EXCEEDED": exports.color.hue(75),
-  "RUNTIME_ERROR": exports.color.hue(22),
-  "COMPILATION_ERROR": exports.color.gray(60)
+  "OK": '#00a92a',
+  "WRONG_ANSWER": '#ed4420',
+  "TIME_LIMIT_EXCEEDED": '#a3bcbd',
+  "MEMORY_LIMIT_EXCEEDED": '#0462c7',
+  "IDLENESS_LIMIT_EXCEEDED": '#bf00a6',
+  "RUNTIME_ERROR": '#ffa71c',
+  "COMPILATION_ERROR": '#42586d'
 };
 },{}],"charts/verdicts.ts":[function(require,module,exports) {
 "use strict";
@@ -20690,7 +20690,7 @@ function verdicts(status) {
     return util_1.colorFor[l] || util_1.color.random();
   });
   return {
-    type: 'doughnut',
+    type: 'pie',
     data: {
       labels: labels,
       datasets: [{
@@ -20702,13 +20702,18 @@ function verdicts(status) {
     },
     options: {
       responsive: true,
-      maintainAspectRatio: false
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'right'
+        }
+      }
     }
   };
 }
 
 exports.default = verdicts;
-},{"lodash/groupBy":"../node_modules/lodash/groupBy.js","../util":"util.ts"}],"charts/verdicts_bar.ts":[function(require,module,exports) {
+},{"lodash/groupBy":"../node_modules/lodash/groupBy.js","../util":"util.ts"}],"charts/verdicts_per_problem.ts":[function(require,module,exports) {
 "use strict";
 
 var __importDefault = this && this.__importDefault || function (mod) {
@@ -20723,11 +20728,10 @@ Object.defineProperty(exports, "__esModule", {
 
 var groupBy_1 = __importDefault(require("lodash/groupBy"));
 
-var util_1 = require("../util"); //! FIXME: something's wrong. Problem M shouldn't have any Accepted submissions
-// Pretty unreadable
+var util_1 = require("../util"); // Pretty unreadable
 
 
-function verdicts_bar(status) {
+function verdicts_per_problem(status) {
   var priority = {
     "OK": 1,
     "WRONG_ANSWER": 2,
@@ -20776,8 +20780,7 @@ function verdicts_bar(status) {
     return {
       label: label,
       data: data,
-      backgroundColor: backgroundColor,
-      hoverOffset: 4
+      backgroundColor: backgroundColor
     };
   });
   return {
@@ -20789,6 +20792,7 @@ function verdicts_bar(status) {
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      indexAxis: 'y',
       scales: {
         x: {
           stacked: true
@@ -20801,8 +20805,70 @@ function verdicts_bar(status) {
   };
 }
 
-exports.default = verdicts_bar;
-},{"lodash/groupBy":"../node_modules/lodash/groupBy.js","../util":"util.ts"}],"index.ts":[function(require,module,exports) {
+exports.default = verdicts_per_problem;
+},{"lodash/groupBy":"../node_modules/lodash/groupBy.js","../util":"util.ts"}],"charts/submissions_time.ts":[function(require,module,exports) {
+"use strict";
+
+var __importDefault = this && this.__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var groupBy_1 = __importDefault(require("lodash/groupBy"));
+
+function submissions_time(status) {
+  var maxTime = status.reduce(function (acc, sub) {
+    return Math.max(acc, sub.relativeTimeSeconds);
+  }, 0);
+  var step = 20 * 60; // 10 minute intervals
+
+  var times = new Array(Math.ceil(maxTime / step)).fill(0).map(function (_, i) {
+    return i * step / 60;
+  });
+  var groups = Object.entries(groupBy_1.default(status, function (sub) {
+    return sub.problem.index;
+  }));
+  groups.sort();
+  var datasets = groups.map(function (_a, index) {
+    var _ = _a[0],
+        subs = _a[1];
+    var label = subs[0].problem.index + " - " + subs[0].problem.name;
+    var backgroundColor = "hsl(" + index * 30 + "deg 50% 40% / 40%)";
+    var data = new Array(times.length).fill(0);
+
+    for (var _i = 0, subs_1 = subs; _i < subs_1.length; _i++) {
+      var sub = subs_1[_i];
+      var bucket = Math.floor(sub.relativeTimeSeconds / step);
+      data[bucket]++;
+    }
+
+    return {
+      label: label,
+      backgroundColor: backgroundColor,
+      data: data,
+      fill: true
+    };
+  });
+  return {
+    type: 'line',
+    data: {
+      labels: times,
+      datasets: datasets
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false
+    }
+  };
+}
+
+exports.default = submissions_time;
+},{"lodash/groupBy":"../node_modules/lodash/groupBy.js"}],"index.ts":[function(require,module,exports) {
 "use strict";
 
 var __createBinding = this && this.__createBinding || (Object.create ? function (o, m, k, k2) {
@@ -20998,7 +21064,9 @@ var auto_1 = __importDefault(require("chart.js/auto"));
 
 var verdicts_1 = __importDefault(require("./charts/verdicts"));
 
-var verdicts_bar_1 = __importDefault(require("./charts/verdicts_bar"));
+var verdicts_per_problem_1 = __importDefault(require("./charts/verdicts_per_problem"));
+
+var submissions_time_1 = __importDefault(require("./charts/submissions_time"));
 
 var is_submission_from_contestant = function is_submission_from_contestant(s) {
   return s.author.participantType == "CONTESTANT";
@@ -21026,7 +21094,7 @@ var $ = {
 
 function main() {
   return __awaiter(this, void 0, void 0, function () {
-    var creds, status, verdicts_canvas, verdicts_bar_canvas;
+    var creds, status, verdicts_canvas, verdicts_per_problem_canvas, submissions_time_canvas;
     return __generator(this, function (_a) {
       switch (_a.label) {
         case 0:
@@ -21047,15 +21115,20 @@ function main() {
           status = _a.sent();
           status = status.filter(is_submission_from_contestant);
           verdicts_canvas = make_canvas({
-            'id': 'contest-verdicts',
-            'style': 'height: 500px;'
-          }, $.q('.contest-charts'));
+            'id': 'verdicts-canvas',
+            'style': 'height: 360px;'
+          }, $.q('#verdicts'));
           new auto_1.default(verdicts_canvas, verdicts_1.default(status));
-          verdicts_bar_canvas = make_canvas({
-            'id': 'contest-verdicts-bar',
+          verdicts_per_problem_canvas = make_canvas({
+            'id': 'verdicts-per-problem-canvas',
             'style': 'height: 600px;'
-          }, $.q('.contest-charts-2'));
-          new auto_1.default(verdicts_bar_canvas, verdicts_bar_1.default(status));
+          }, $.q('#verdicts-per-problem'));
+          new auto_1.default(verdicts_per_problem_canvas, verdicts_per_problem_1.default(status));
+          submissions_time_canvas = make_canvas({
+            'id': 'submissions-time-canvas',
+            'style': 'height: 600px;'
+          }, $.q('#submissions-time'));
+          new auto_1.default(submissions_time_canvas, submissions_time_1.default(status));
           return [2
           /*return*/
           ];
@@ -21065,7 +21138,7 @@ function main() {
 }
 
 main();
-},{"./api":"api.ts","chart.js/auto":"../node_modules/chart.js/auto/auto.esm.js","./charts/verdicts":"charts/verdicts.ts","./charts/verdicts_bar":"charts/verdicts_bar.ts"}],"../node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"./api":"api.ts","chart.js/auto":"../node_modules/chart.js/auto/auto.esm.js","./charts/verdicts":"charts/verdicts.ts","./charts/verdicts_per_problem":"charts/verdicts_per_problem.ts","./charts/submissions_time":"charts/submissions_time.ts"}],"../node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -21093,7 +21166,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54067" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "61179" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

@@ -5,7 +5,7 @@ import { color } from '../util';
 
 export default function submissions_time(status: Submission[]): chart.ChartConfiguration  {
     const maxTime = status.reduce((acc, sub) => Math.max(acc, sub.relativeTimeSeconds), 0);
-    const step = 15 * 60; // 10 minute intervals
+    const step = 15 * 60; // 15 minute intervals
     const times = new Array(Math.ceil(maxTime / step)).fill(0).map((_, i) => i * step / 60);
 
     let groups = Object.entries(groupBy(status, sub => sub.problem.index));

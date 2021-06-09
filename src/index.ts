@@ -27,18 +27,7 @@ const $ = {
     qa(query: string) { return document.querySelectorAll(query); },
 };
 
-async function main(contestID: string) {
-    // Yeah, an extension or userscript could easily get hold of these
-    let creds: api.Creds = {
-        key: localStorage.getItem('cf_key'),
-        secret: localStorage.getItem('cf_secret'),
-    };
-
-    let status = await api.contest_status(creds, contestID);
-    status = status
-        .filter(is_submission_from_contestant);
-
-    // Make the graphs!
+function make_all_charts(status: Submission[]) {
     let verdicts_canvas = make_canvas(
         { 'id': 'verdicts-canvas', 'style': 'height: 360px;' },
         $.q('#verdicts'));
@@ -64,6 +53,19 @@ async function main(contestID: string) {
     new Chart(acs_time_canvas, submissions_time(status.filter(sub => sub.verdict == "OK")));
 }
 
+function main(contestID: string) {
+    // Yeah, an extension or userscript could easily get hold of these
+    let creds: api.Creds = {
+        key: localStorage.getItem('cf_key'),
+        secret: localStorage.getItem('cf_secret'),
+    };
+
+    return api.contest_status(creds, contestID)
+        .then(status => status.filter(is_submission_from_contestant))
+        .then(make_all_charts)
+        .catch(err => alert(err));
+}
+
 (function bind_events() {
     $.id('save-btn').addEventListener('click', () => {
         const key = ($.id('key-input') as HTMLInputElement).value;
@@ -71,8 +73,6 @@ async function main(contestID: string) {
 
         localStorage.setItem('cf_key', key);
         localStorage.setItem('cf_secret', secret);
-
-        window.location.reload();
     });
 
     ($.id('contest-id') as HTMLInputElement).value = localStorage.getItem('last_contest_id') || "";

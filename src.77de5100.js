@@ -20899,7 +20899,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var groupBy_1 = __importDefault(require("lodash/groupBy"));
 
-function verdicts_per_problem(status) {
+function submissions_lang(status) {
   var groups = Object.entries(groupBy_1.default(status, function (sub) {
     return sub.programmingLanguage;
   }));
@@ -20948,7 +20948,7 @@ function verdicts_per_problem(status) {
   };
 }
 
-exports.default = verdicts_per_problem;
+exports.default = submissions_lang;
 },{"lodash/groupBy":"../node_modules/lodash/groupBy.js"}],"index.ts":[function(require,module,exports) {
 "use strict";
 
@@ -21124,7 +21124,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "60285" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "64568" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

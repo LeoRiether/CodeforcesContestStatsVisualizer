@@ -20825,7 +20825,7 @@ function submissions_time(status) {
   var maxTime = status.reduce(function (acc, sub) {
     return Math.max(acc, sub.relativeTimeSeconds);
   }, 0);
-  var step = 20 * 60; // 10 minute intervals
+  var step = 15 * 60; // 10 minute intervals
 
   var times = new Array(Math.ceil(maxTime / step)).fill(0).map(function (_, i) {
     return i * step / 60;
@@ -20838,7 +20838,7 @@ function submissions_time(status) {
     var _ = _a[0],
         subs = _a[1];
     var label = subs[0].problem.index + " - " + subs[0].problem.name;
-    var backgroundColor = "hsl(" + index * 30 + "deg 50% 40% / 40%)";
+    var backgroundColor = "hsl(" + index * 23 + "deg 60% 55% / 90%)";
     var data = new Array(times.length).fill(0);
 
     for (var _i = 0, subs_1 = subs; _i < subs_1.length; _i++) {
@@ -20855,14 +20855,30 @@ function submissions_time(status) {
     };
   });
   return {
-    type: 'line',
+    type: 'bar',
     data: {
       labels: times,
       datasets: datasets
     },
     options: {
       responsive: true,
-      maintainAspectRatio: false
+      maintainAspectRatio: false,
+      scales: {
+        x: {
+          title: {
+            display: true,
+            text: 'Time (minutes)'
+          },
+          stacked: true
+        },
+        y: {
+          title: {
+            display: true,
+            text: "Submissions"
+          },
+          stacked: true
+        }
+      }
     }
   };
 }
@@ -21089,27 +21105,25 @@ var $ = {
   },
   q: function q(query) {
     return document.querySelector(query);
+  },
+  qa: function qa(query) {
+    return document.querySelectorAll(query);
   }
 };
 
-function main() {
+function main(contestID) {
   return __awaiter(this, void 0, void 0, function () {
-    var creds, status, verdicts_canvas, verdicts_per_problem_canvas, submissions_time_canvas;
+    var creds, status, verdicts_canvas, verdicts_per_problem_canvas, submissions_time_canvas, acs_time_canvas;
     return __generator(this, function (_a) {
       switch (_a.label) {
         case 0:
-          if (localStorage.getItem('cf_key') === null || localStorage.getItem('cf_secret') === null) {
-            localStorage.setItem('cf_key', prompt('Your API key'));
-            localStorage.setItem('cf_secret', prompt('Your API secret'));
-          }
-
           creds = {
             key: localStorage.getItem('cf_key'),
             secret: localStorage.getItem('cf_secret')
           };
           return [4
           /*yield*/
-          , api.contest_status(creds, '329742')];
+          , api.contest_status(creds, contestID)];
 
         case 1:
           status = _a.sent();
@@ -21129,6 +21143,13 @@ function main() {
             'style': 'height: 600px;'
           }, $.q('#submissions-time'));
           new auto_1.default(submissions_time_canvas, submissions_time_1.default(status));
+          acs_time_canvas = make_canvas({
+            'id': 'acs-time-canvas',
+            'style': 'height: 600px;'
+          }, $.q('#acs-time'));
+          new auto_1.default(acs_time_canvas, submissions_time_1.default(status.filter(function (sub) {
+            return sub.verdict == "OK";
+          })));
           return [2
           /*return*/
           ];
@@ -21137,7 +21158,25 @@ function main() {
   });
 }
 
-main();
+(function bind_events() {
+  $.id('save-btn').addEventListener('click', function () {
+    var key = $.id('key-input').value;
+    var secret = $.id('secret-input').value;
+    localStorage.setItem('cf_key', key);
+    localStorage.setItem('cf_secret', secret);
+    window.location.reload();
+  });
+  $.id('contest-id').value = localStorage.getItem('last_contest_id') || "";
+  $.id('vis-btn').addEventListener('click', function () {
+    var contestID = $.id('contest-id').value;
+    main(contestID);
+    Array.from($.qa('.form')).forEach(function (el) {
+      return el.remove();
+    });
+    localStorage.setItem('last_contest_id', contestID);
+    $.q('.dashboard').classList.remove('hidden');
+  });
+})();
 },{"./api":"api.ts","chart.js/auto":"../node_modules/chart.js/auto/auto.esm.js","./charts/verdicts":"charts/verdicts.ts","./charts/verdicts_per_problem":"charts/verdicts_per_problem.ts","./charts/submissions_time":"charts/submissions_time.ts"}],"../node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
@@ -21166,7 +21205,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "61179" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "52167" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

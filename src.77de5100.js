@@ -21023,6 +21023,11 @@ function make_canvas(attrs, parent) {
   return canvas;
 }
 
+function make_chart(data, canvas_attr, parent_element) {
+  var canvas = make_canvas(canvas_attr, parent_element);
+  new auto_1.default(canvas, data);
+}
+
 var $ = {
   id: function id(_id) {
     return document.getElementById(_id);
@@ -21036,33 +21041,28 @@ var $ = {
 };
 
 function make_all_charts(status) {
-  var verdicts_canvas = make_canvas({
+  make_chart(verdicts_1.default(status), {
     'id': 'verdicts-canvas',
     'style': 'height: 360px;'
   }, $.q('#verdicts'));
-  new auto_1.default(verdicts_canvas, verdicts_1.default(status));
-  var verdicts_per_problem_canvas = make_canvas({
+  make_chart(verdicts_per_problem_1.default(status), {
     'id': 'verdicts-per-problem-canvas',
     'style': 'height: 550px;'
   }, $.q('#verdicts-per-problem'));
-  new auto_1.default(verdicts_per_problem_canvas, verdicts_per_problem_1.default(status));
-  var submissions_time_canvas = make_canvas({
+  make_chart(submissions_time_1.default(status), {
     'id': 'submissions-time-canvas',
     'style': 'height: 600px;'
   }, $.q('#submissions-time'));
-  new auto_1.default(submissions_time_canvas, submissions_time_1.default(status));
-  var acs_time_canvas = make_canvas({
+  make_chart(submissions_time_1.default(status.filter(function (sub) {
+    return sub.verdict == "OK";
+  })), {
     'id': 'acs-time-canvas',
     'style': 'height: 600px;'
   }, $.q('#acs-time'));
-  new auto_1.default(acs_time_canvas, submissions_time_1.default(status.filter(function (sub) {
-    return sub.verdict == "OK";
-  })));
-  var submissions_by_lang = make_canvas({
+  make_chart(submissions_lang_1.default(status), {
     'id': 'subs-by-lang-canvas',
     'style': 'height: 300px;'
   }, $.q('#subs-by-lang'));
-  new auto_1.default(submissions_by_lang, submissions_lang_1.default(status));
 }
 
 function main(contestID) {
@@ -21124,7 +21124,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "64568" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "64220" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
